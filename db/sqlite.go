@@ -27,7 +27,6 @@ func Init() {
     // Set the global database client
     deviceDB = db
 
-    _ = db.Migrator().DropTable(&DeviceMeta{})
     // Auto-migrate the Device schema
     err = db.AutoMigrate(&DeviceMeta{})
     if err != nil {
