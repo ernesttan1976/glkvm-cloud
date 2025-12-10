@@ -124,3 +124,26 @@ func GetAllDeviceMeta(keyword string) ([]db.DeviceMeta, error) {
 
     return list, nil
 }
+
+// DeleteDeviceMetaByDeviceID deletes device metadata by device_id.
+// It returns gorm.ErrRecordNotFound if no record is deleted.
+func DeleteDeviceMetaByDeviceID(deviceID string) error {
+    deviceDB := db.GetDbClient()
+    if deviceDB == nil {
+        return fmt.Errorf("deviceDB is not initialized")
+    }
+
+    result := deviceDB.
+        Where("device_id = ?", deviceID).
+        Delete(&db.DeviceMeta{})
+
+    if result.Error != nil {
+        return result.Error
+    }
+
+    if result.RowsAffected == 0 {
+        return gorm.ErrRecordNotFound
+    }
+
+    return nil
+}
