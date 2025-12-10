@@ -15,7 +15,8 @@
     "ok": "OK",
     "close": "Close",
     "about": "About",
-    "maxLength": "Maximum length is {length} characters"
+    "maxLength": "Maximum length is {length} characters",
+    "more": "More"
   },
   "login": {
     "authorizationRequired": "Authorization Required",
@@ -73,7 +74,9 @@
     "offline": "Offline",
     "editDescription": "Edit Description",
     "inputDescription": "Input Description",
-    "requiredDescription": "Please input description"
+    "requiredDescription": "Please input description",
+    "deleteDevice": "Delete Device",
+    "deleteDeviceConfirmTips": "Are you sure you want to delete this device? This action cannot be undone."
   },
   "rtty": {
     "requestingDeviceToCreateTerminal": "Requesting device to create terminal...",

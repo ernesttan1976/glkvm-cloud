@@ -2,7 +2,7 @@
  * @Author: shufei.han
  * @Date: 2025-06-11 12:04:48
  * @LastEditors: LPY
- * @LastEditTime: 2025-12-10 11:40:53
+ * @LastEditTime: 2025-12-10 14:22:45
  * @FilePath: \glkvm-cloud\ui\src\views\device\components\deviceListView.vue
  * @Description: 
 -->
@@ -53,13 +53,14 @@
                                 @click="handleRemoteControl(record.id, record)">
                                 {{ $t('device.remoteControl') }}
                             </a>
-                            <a 
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style="margin-left: 16px;"
-                                @click="handleEditDescription(record.id, record.description)">
-                                {{ $t('device.editDescription') }}
-                            </a>
+                            <BaseDropdownSelect :options="DEVICE_OPTIONS(record)" @update:value="(v) => handleAction(v, record)">
+                                <a 
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style="margin-left: 16px;">
+                                    {{ $t('common.more') }}
+                                </a>
+                            </BaseDropdownSelect>
                         </div>
                     </template>
                 </BaseTable>
@@ -108,8 +109,10 @@ import { computed, reactive, ref } from 'vue'
 import ExecuteCommandDialog from './executeCommandDialog.vue'
 import { DeviceInfo, ExecuteCommandFormData } from '@/models/device'
 import CommandResponseDialog from './commandResponseDialog.vue'
-import { BaseTag } from 'gl-web-main/components'
+import { BaseDropdownSelect, BaseInfo, BaseTag } from 'gl-web-main/components'
 import EditDescriptionDialog from './editDescriptionDialog.vue'
+import { baseCustomModal, SelectOptions } from 'gl-web-main'
+import { reqDeleteDevice } from '@/api/device'
 
 const deviceStore  = useDeviceStore()
 
@@ -122,7 +125,7 @@ const deviceColumns = computed<TableColumnType[]>(() => {
         {title: t('device.uptime'), dataIndex: 'uptime', ellipsis: true},
         {title: t('device.IPAddress'), dataIndex: 'ipaddr', ellipsis: true},
         {title: t('device.description'), dataIndex: 'description', ellipsis: true},
-        {title: t('common.action'), dataIndex: 'action', width: 330},
+        {title: t('common.action'), dataIndex: 'action', width: 270},
     ]
 })
 
@@ -215,6 +218,46 @@ const handleRemoteControl = async (id: string, device: DeviceInfo) => {
 /** 计算设备是否在线 */
 const isDeviceOnline = (device: DeviceInfo) => {
     return device.connected && device.connected > 0
+}
+
+enum DeviceActions {
+    /** 编辑描述 */
+    EDIT_DESCRIPTION,
+    /** 删除设备 */
+    DELETE,
+}
+
+const DEVICE_OPTIONS = (device: DeviceInfo) => {
+    if (isDeviceOnline(device)) {
+        return [
+            new SelectOptions(DeviceActions.EDIT_DESCRIPTION, t('device.editDescription')),
+        ]
+    } else {
+        return [
+            new SelectOptions(DeviceActions.EDIT_DESCRIPTION, t('device.editDescription')),
+            new SelectOptions(DeviceActions.DELETE, t('device.deleteDevice')),
+        ]
+    }
+}
+
+const handleAction = async (action: DeviceActions, device: DeviceInfo) => {
+    switch (action) {
+    case DeviceActions.EDIT_DESCRIPTION:
+        handleEditDescription(device.id, device.description)
+        break
+    case DeviceActions.DELETE:
+        baseCustomModal({
+            type: 'confirm',
+            title: t('device.deleteDevice'),
+            content: t('device.deleteDeviceConfirmTips'),
+            onOk: async () => {
+                await reqDeleteDevice({ deviceId: device.id })
+                deviceStore.getDeviceList()
+                message.success(t('common.success'))
+            },
+        })
+        break
+    }
 }
 
 /** 修改描述 */

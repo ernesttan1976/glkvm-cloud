@@ -15,7 +15,8 @@
     "ok": "确定",
     "close": "关闭",
     "about": "关于",
-    "maxLength": "最大长度为{length}个字符"
+    "maxLength": "最大长度为{length}个字符",
+    "more": "更多"
   },
   "login": {
     "authorizationRequired": "需要授权",
@@ -73,7 +74,9 @@
     "offline": "离线",
     "editDescription": "编辑描述",
     "inputDescription": "输入描述",
-    "requiredDescription": "请输入描述"
+    "requiredDescription": "请输入描述",
+    "deleteDevice": "删除设备",
+    "deleteDeviceConfirmTips": "你确定要删除这台设备吗？此操作不可撤销。"
   },
   "rtty": {
     "requestingDeviceToCreateTerminal": "正在请求设备创建终端...",

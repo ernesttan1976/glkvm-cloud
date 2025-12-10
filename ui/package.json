@@ -11,7 +11,7 @@
     "build:dev": "vite build --mode development",
     "build:test": "vite build --mode test",
     "build:prodCn": "vite build --mode productionCn",
-    "deploy": "scp -r ./dist root@47.115.78.134:/root/glkvm_cloud/ui/dist1",
+    "deploy": "scp -r ./dist root@107.173.152.173:/root/glkvm_cloud/ui/dist",
     "preview": "vite preview",
     "lint-all": "eslint src/**/*.{js,vue}",
     "lint": "lint-staged",
