@@ -2,7 +2,7 @@
  * @Author: shufei.han
  * @Date: 2025-06-11 12:04:48
  * @LastEditors: LPY
- * @LastEditTime: 2025-08-29 15:06:55
+ * @LastEditTime: 2025-12-10 11:40:53
  * @FilePath: \glkvm-cloud\ui\src\views\device\components\deviceListView.vue
  * @Description: 
 -->
@@ -28,17 +28,37 @@
                     rowKey="id"
                     :rowSelection="{ selectedRowKeys: state.selectedRowKeys, onChange: onSelectChange }"
                 >
+                    <template #status="{ record }">
+                        <BaseTag primary v-if="isDeviceOnline(record)">{{ $t('device.online') }}</BaseTag>
+                        <BaseTag v-else>{{ $t('device.offline') }}</BaseTag>
+                    </template>
                     <template #connected="{ record }">
-                        {{ record.connected ? calculateWithDuration(record.connected) : '' }}
+                        {{ record.connected ? calculateWithDuration(record.connected) : '-' }}
                     </template>
                     <template #uptime="{ record }">
-                        {{ record.uptime ? calculateWithDuration(record.uptime) : '' }}
+                        {{ record.uptime ? calculateWithDuration(record.uptime) : '-' }}
                     </template>
                     <template #action="{ record }">
                         <div class="flex-start">
-                            <a target="_blank" rel="noopener noreferrer" @click="handleRemoteSSH(record.id)">{{ $t('device.remoteSSH') }}</a>
-                            <a target="_blank" rel="noopener noreferrer" style="margin-left: 16px;" @click="handleRemoteControl(record.id)">
+                            <a 
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                :class="[{'disabled': !isDeviceOnline(record)}]"
+                                @click="handleRemoteSSH(record.id, record)">{{ $t('device.remoteSSH') }}</a>
+                            <a 
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style="margin-left: 16px;"
+                                :class="[{'disabled': !isDeviceOnline(record)}]"
+                                @click="handleRemoteControl(record.id, record)">
                                 {{ $t('device.remoteControl') }}
+                            </a>
+                            <a 
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style="margin-left: 16px;"
+                                @click="handleEditDescription(record.id, record.description)">
+                                {{ $t('device.editDescription') }}
                             </a>
                         </div>
                     </template>
@@ -66,6 +86,14 @@
             :selection="state.selectedRows"
             :formData="executeCommandFormData"
         />
+
+        <!-- 修改描述弹窗 -->
+        <EditDescriptionDialog 
+            v-model:open="editDescriptionOpen"
+            :deviceId="editingDeviceId"
+            :currentDescription="currentDescription"
+            @handleApply="handleEditDescriptionApply"
+        />
     </BaseLoadingContainer>
 </template> 
 
@@ -80,17 +108,21 @@ import { computed, reactive, ref } from 'vue'
 import ExecuteCommandDialog from './executeCommandDialog.vue'
 import { DeviceInfo, ExecuteCommandFormData } from '@/models/device'
 import CommandResponseDialog from './commandResponseDialog.vue'
+import { BaseTag } from 'gl-web-main/components'
+import EditDescriptionDialog from './editDescriptionDialog.vue'
 
 const deviceStore  = useDeviceStore()
 
 const deviceColumns = computed<TableColumnType[]>(() => { 
     return [
         {title: t('device.deviceID'), dataIndex: 'id', ellipsis: true},
+        {title: t('MAC'), dataIndex: 'mac', ellipsis: true},
+        {title: t('device.status'), dataIndex: 'status', ellipsis: true},
         {title: t('device.connectedTime'), dataIndex: 'connected', ellipsis: true},
         {title: t('device.uptime'), dataIndex: 'uptime', ellipsis: true},
         {title: t('device.IPAddress'), dataIndex: 'ipaddr', ellipsis: true},
         {title: t('device.description'), dataIndex: 'description', ellipsis: true},
-        {title: t('common.action'), dataIndex: 'action', width: 220},
+        {title: t('common.action'), dataIndex: 'action', width: 330},
     ]
 })
 
@@ -155,7 +187,8 @@ const executeCommandApply = (formData: ExecuteCommandFormData) => {
 }
 
 /** 远程SSH */
-const handleRemoteSSH = async (id: string) => {
+const handleRemoteSSH = async (id: string, device: DeviceInfo) => {
+    if (!isDeviceOnline(device)) return
     try {
         let url = `/#/rtty/${id}`
         window.open(url)
@@ -165,7 +198,8 @@ const handleRemoteSSH = async (id: string) => {
 }
 
 /** 远程控制 */
-const handleRemoteControl = async (id: string) => {
+const handleRemoteControl = async (id: string, device: DeviceInfo) => {
+    if (!isDeviceOnline(device)) return
     try {
         let proto = 'https'
         let ipaddr = '127.0.0.1'
@@ -176,6 +210,27 @@ const handleRemoteControl = async (id: string) => {
     } catch (error) {
         console.log(error)
     }
+}
+
+/** 计算设备是否在线 */
+const isDeviceOnline = (device: DeviceInfo) => {
+    return device.connected && device.connected > 0
+}
+
+/** 修改描述 */
+const editDescriptionOpen = ref(false)
+
+const editingDeviceId = ref<string>('')
+const currentDescription = ref<string>('')
+    
+const handleEditDescription = (deviceId: string, description: string) => {
+    editingDeviceId.value = deviceId
+    currentDescription.value = description
+    editDescriptionOpen.value = true
+}
+const handleEditDescriptionApply = () => {
+    deviceStore.getDeviceList()
+    message.success(t('common.success'))
 }
 </script> 
 
@@ -196,6 +251,11 @@ const handleRemoteControl = async (id: string) => {
     }
     .pagination {
         height: 40px;
+    }
+
+    .disabled {
+        cursor: not-allowed;
+        color: var(--gl-color-text-disabled);
     }
 }
 </style>

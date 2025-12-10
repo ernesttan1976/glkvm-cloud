@@ -2,8 +2,8 @@
  * @Author: shufei.han
  * @Date: 2025-06-11 11:48:02
  * @LastEditors: LPY
- * @LastEditTime: 2025-08-26 16:07:23
- * @FilePath: \glkvm-cloud\web-ui\src\api\device.ts
+ * @LastEditTime: 2025-12-10 11:38:58
+ * @FilePath: \glkvm-cloud\ui\src\api\device.ts
  * @Description: 设备相关API
  */
 import { ExecuteCommandParams, type DeviceInfo } from '@/models/device'
@@ -22,4 +22,9 @@ export const getAddDeviceScriptInfoApi = () => {
 /** 执行命令 */
 export const reqExecuteCommand = (data: ExecuteCommandParams) => {
     return httpService.post(`/cmd/${data.id}?group=${data.group}&wait=${data.wait}`, data)
+}
+
+/** 修改描述 */
+export const reqEditDescription = (data: { deviceId: string, description: string }) => {
+    return httpService.post('/devs/update', data)
 }

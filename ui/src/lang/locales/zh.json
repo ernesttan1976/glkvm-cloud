@@ -14,7 +14,8 @@
     "cancel": "取消",
     "ok": "确定",
     "close": "关闭",
-    "about": "关于"
+    "about": "关于",
+    "maxLength": "最大长度为{length}个字符"
   },
   "login": {
     "authorizationRequired": "需要授权",
@@ -66,7 +67,13 @@
     "errorMessage": "错误信息",
     "commandResponseDetail": "命令响应详情",
     "standardOutput": "标准输出",
-    "standardErrorOutput": "标准错误输出"
+    "standardErrorOutput": "标准错误输出",
+    "status": "状态",
+    "online": "在线",
+    "offline": "离线",
+    "editDescription": "编辑描述",
+    "inputDescription": "输入描述",
+    "requiredDescription": "请输入描述"
   },
   "rtty": {
     "requestingDeviceToCreateTerminal": "正在请求设备创建终端...",

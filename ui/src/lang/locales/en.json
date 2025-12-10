@@ -14,7 +14,8 @@
     "cancel": "Cancel",
     "ok": "OK",
     "close": "Close",
-    "about": "About"
+    "about": "About",
+    "maxLength": "Maximum length is {length} characters"
   },
   "login": {
     "authorizationRequired": "Authorization Required",
@@ -66,7 +67,13 @@
     "errorMessage": "Error Message",
     "commandResponseDetail": "Command Response Detail",
     "standardOutput": "Standard output",
-    "standardErrorOutput": "Standard error output"
+    "standardErrorOutput": "Standard error output",
+    "status": "Status",
+    "online": "Online",
+    "offline": "Offline",
+    "editDescription": "Edit Description",
+    "inputDescription": "Input Description",
+    "requiredDescription": "Please input description"
   },
   "rtty": {
     "requestingDeviceToCreateTerminal": "Requesting device to create terminal...",

@@ -23,38 +23,38 @@ export default defineConfig(({ mode }) => {
             port: 3011,
             proxy: {
                 '/devs': {
-                    target: 'https://oidc.clanxie.cn',
+                    target: 'https://107.173.152.173',
                     secure: false,
                 },
                 '/signin': {
-                    target: 'https://oidc.clanxie.cn',
+                    target: 'https://107.173.152.173',
                     secure: false,
                 },
                 '/signout': {
-                    target: 'https://oidc.clanxie.cn',
+                    target: 'https://107.173.152.173',
                     secure: false,
                 },
                 '/alive': {
-                    target: 'https://oidc.clanxie.cn',
+                    target: 'https://107.173.152.173',
                     secure: false,
                 },
                 '/get': {
-                    target: 'https://oidc.clanxie.cn',
+                    target: 'https://107.173.152.173',
                     secure: false,
                 },
                 '^/cmd/.*': {
-                    target: 'https://oidc.clanxie.cn',
+                    target: 'https://107.173.152.173',
                     secure: false,
                 },
                 '^/connect/.*': {
                     ws: true,
-                    target: 'https://oidc.clanxie.cn',
+                    target: 'https://107.173.152.173',
                 },
                 '^/web/*': {
-                    target: 'https://oidc.clanxie.cn',
+                    target: 'https://107.173.152.173',
                 },
                 '/auth-config': {
-                    target: 'https://oidc.clanxie.cn',
+                    target: 'https://107.173.152.173',
                     secure: false,
                 },
             },
