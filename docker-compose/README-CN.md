@@ -53,6 +53,44 @@ cp .env.example .env
 - `OIDC_ALLOWED_USERNAMES`：允许的用户名列表（可选）
 - `OIDC_ALLOWED_GROUPS`：允许的用户组列表（可选）
 
+#### **反向代理模式（可选）**
+
+```env
+# 启用反向代理模式（例如在 GLKVM Cloud 前使用 Nginx）
+# 启用后，TLS 由反向代理终止，GLKVM Cloud 内部使用明文 HTTP
+REVERSE_PROXY_ENABLED=false
+```
+
+当 `REVERSE_PROXY_ENABLED` 设置为 `true` 时，GLKVM Cloud 将运行在 **反向代理（如 Nginx）之后**：
+
+- HTTPS 证书由反向代理管理（而不是由 GLKVM Cloud 本身管理）
+- GLKVM Cloud 内部以明文 HTTP 方式监听
+- 同一个 HTTPS 端口可同时用于：
+  - 访问 GLKVM Cloud Web 管理界面
+  - 访问远程 KVM 设备
+
+例如，在正确配置 Nginx 的情况下：
+
+```nginx
+# 转发原始的主机名、协议、端口以及客户端 IP
+# 在反向代理模式下，这些 Header 是必须的
+proxy_set_header Host                $host;
+proxy_set_header X-Forwarded-Host    $host;
+proxy_set_header X-Forwarded-Proto   $scheme;
+proxy_set_header X-Forwarded-Port    $server_port;
+proxy_set_header X-Real-IP           $remote_addr;
+proxy_set_header X-Forwarded-For     $proxy_add_x_forwarded_for;
+```
+
+你可以通过以下地址访问：
+
+```text
+https://www.example.com            → GLKVM Cloud 管理界面
+https://<device_id>.example.com    → 远程设备访问
+```
+
+这两个地址可以共用 **同一个 HTTPS 端口（443）**，由反向代理根据访问的域名进行路由区分。
+
 ⚠️ **注意：所有配置均需在 `.env` 中完成，不需要修改 `docker-compose.yml`、模板或脚本。**
 
 ### 3. **启动服务**
