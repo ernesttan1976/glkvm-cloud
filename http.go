@@ -351,6 +351,27 @@ func httpProxyRedirect(srv *RttyServer, c *gin.Context, group string) {
             location = fmt.Sprintf("https://%s%s?sid=%s", redirHost, cfg.AddrHttpProxy, sid)
             log.Info().Msgf("Using domain redirect: %s", location)
         } else {
+            // ---- verify forwarded headers from reverse proxy ----
+            rawHost := c.GetHeader("Host")
+            xfHost := c.GetHeader("X-Forwarded-Host")
+            xfProto := c.GetHeader("X-Forwarded-Proto")
+            xfPort := c.GetHeader("X-Forwarded-Port")
+            xRealIP := c.GetHeader("X-Real-IP")
+            xFF := c.GetHeader("X-Forwarded-For")
+
+            log.Info().Msgf(
+                "reverse-proxy info: method=%s uri=%s host=%q tls=%v remoteIP=%q",
+                c.Request.Method,
+                c.Request.URL.String(),
+                rawHost,
+                c.Request.TLS != nil,
+                c.ClientIP(),
+            )
+            log.Info().Msgf(
+                "reverse-proxy headers: Host=%q X-Forwarded-Host=%q X-Forwarded-Proto=%q X-Forwarded-Port=%q X-Real-IP=%q X-Forwarded-For=%q",
+                rawHost, xfHost, xfProto, xfPort, xRealIP, xFF,
+            )
+
             // 0) scheme: follow reverse proxy
             scheme := ""
             if v := strings.TrimSpace(c.GetHeader("X-Forwarded-Proto")); v != "" {
@@ -361,34 +382,17 @@ func httpProxyRedirect(srv *RttyServer, c *gin.Context, group string) {
                 scheme = "http"
             }
 
-            // 1) external port: prefer the one user actually accessed (Host or forwarded headers)
+            // 1) external port: prefer the one user actually accessed
             port := ""
-
-            // Prefer port from Host
-            if _, p, err := net.SplitHostPort(c.Request.Host); err == nil && p != "" {
-                port = p
-            }
-
-            // Fallback to forwarded headers
-            if port == "" {
-                if fp := strings.TrimSpace(c.GetHeader("X-Forwarded-Port")); fp != "" {
-                    port = strings.TrimSpace(strings.Split(fp, ",")[0])
-                } else if fh := strings.TrimSpace(c.GetHeader("X-Forwarded-Host")); fh != "" {
-                    fh = strings.TrimSpace(strings.Split(fh, ",")[0])
-                    if _, p, err := net.SplitHostPort(fh); err == nil && p != "" {
-                        port = p
-                    }
-                }
-            }
-
-            // 2) If still empty, fallback to cfg.AddrHttpProxy (which is a PORT, not a path)
-            if port == "" && strings.TrimSpace(cfg.AddrHttpProxy) != "" {
-                portTmp := strings.TrimSpace(cfg.AddrHttpProxy)
-                // Common cases: ":10443", "0.0.0.0:10443", "[::]:10443"
-                if _, p, err := net.SplitHostPort(portTmp); err == nil {
+            if fp := strings.TrimSpace(c.GetHeader("X-Forwarded-Port")); fp != "" {
+                port = strings.TrimSpace(strings.Split(fp, ",")[0])
+            } else if fh := strings.TrimSpace(c.GetHeader("X-Forwarded-Host")); fh != "" {
+                fh = strings.TrimSpace(strings.Split(fh, ",")[0])
+                if _, p, err := net.SplitHostPort(fh); err == nil && p != "" {
                     port = p
                 }
             }
+            log.Info().Msgf("port: %s", port)
 
             // 3) Build host: in proxy mode redirect domain to be redirHost
             hostPort := redirHost
