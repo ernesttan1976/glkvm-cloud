@@ -432,9 +432,10 @@ func (srv *RttyServer) ListenAPI() error {
 
     r.GET("/auth-config", func(c *gin.Context) {
         authConfig := gin.H{
-            "ldapEnabled":    cfg.LdapEnabled,
-            "legacyPassword": cfg.Password != "",
-            "oidcEnabled":    cfg.OIDCEnabled,
+            "ldapEnabled":     cfg.LdapEnabled,
+            "legacyPassword":  cfg.Password != "",
+            "oidcEnabled":     cfg.OIDCEnabled,
+            "kvmCloudVersion": KVMCloudVersion,
         }
         c.JSON(http.StatusOK, authConfig)
     })
